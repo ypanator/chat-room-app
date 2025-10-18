@@ -1,22 +1,27 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Page Title</title>
   
-  <!-- Shared global CSS -->
   <link rel="stylesheet" href="../shared/global.css" />
-  
-  <!-- Domain-specific CSS -->
   <link rel="stylesheet" href="home.css" />
-
-  <!-- Domain-specific JS -->
   <script src="home.js" defer></script>
 </head>
+
 <body>
+<form id="roomData">
+  <label for="roomID">roomID</label>
+  <input type="text" name="roomID" id="roomID">
 
-  <!-- Your page content -->
+  <label for="password">password</label>
+  <input type="password" name="password" id="password">
 
+  <button type="submit" name="action" value="create">Create</button>
+  <button type="submit" name="action" value="join">Join</button>
+</form>
 </body>
+
 </html>
