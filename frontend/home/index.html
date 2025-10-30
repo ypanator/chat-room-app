@@ -13,17 +13,14 @@
 
 <body>
 <form id="roomData">
-  <label for="roomID">roomID</label>
-  <input type="text" name="roomID" id="roomID">
+  <label for="roomId">RoomId</label>
+  <input type="text" name="roomId" id="roomId">
 
-  <label for="password">password</label>
-  <input type="password" name="password" id="password">
+  <label for="username">Username</label>
+  <input type="text" name="username" id="username" autocomplete="nickname" required>
 
-  <label for="username">username</label>
-  <input type="text" name="username" id="username">
-
-  <button type="submit" name="action" value="create">Create</button>
-  <button type="submit" name="action" value="join">Join</button>
+  <button type="submit" name="action" value="create" id="create">Create new room</button>
+  <button type="submit" name="action" value="join" id="join">Join room</button>
 </form>
 </body>
 
