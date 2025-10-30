@@ -12,8 +12,8 @@ function saveData(action, roomId, username) {
 
 function verifyAndCleanData() {
     const output = {username: undefined, roomId: undefined};
-    const username = sessionStorage.getItem("username").trim();
-    const roomId = sessionStorage.getItem("roomId").trim();
+    const username = usernameEl.value.trim();
+    const roomId = roomIdEl.value.trim();
 
     if (username !== "") { output.username = username; }
     if (roomId !== "") { output.roomId = roomId; }
