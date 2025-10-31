@@ -28,7 +28,7 @@ createBtn.addEventListener("click", (e) => {
     if (data.username === undefined) { alert("Username cannot be empty"); return; }
 
     saveData("create", null, data.username);
-    window.location.href = "/chat.html";
+    window.location.href = "../chat/index.html";
 });
 
 joinBtn.addEventListener("click", (e) => {
@@ -39,5 +39,5 @@ joinBtn.addEventListener("click", (e) => {
     if (data.roomId === undefined) { alert("RoomId cannot be empty"); return; }
 
     saveData("join", data.roomId, data.username);
-    window.location.href = "/chat.html";
+    window.location.href = "../chat/index.html";
 });
