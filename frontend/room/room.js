@@ -2,7 +2,7 @@ const msgBoxEl = document.getElementById("msgBox");
 const msgInputEl = document.getElementById("msgInput");
 const msgSendBtn = document.getElementById("msgSend");
 
-const SERVER_URL = `ws://backend:8080?roomId=${roomId}&username=${username}`;
+const SERVER_URL = "ws://backend:8081";
 let ws;
 
 const roomId = sessionStorage.getItem("roomId");
@@ -48,19 +48,27 @@ function insertMsg(msg) {
 
 function sendMsg(msg) {
     if (ws && ws.readyState === WebSocket.OPEN) {
-        ws.send(JSON.stringify({ type: "msg", author: username, text: msg }));
+        ws.send(JSON.stringify({ 
+            type: "msg", 
+            text: msg 
+        }));
     } else {
         insertMsg("Cannot send — socket not open");
         console.log("Failed to send User message.");
     }
 }
 
-function sendAction(action) {
+function sendInit() {
     if (ws && ws.readyState === WebSocket.OPEN) {
-        ws.send(JSON.stringify({ type: "action", action: action, roomId: roomId }));
+        ws.send(JSON.stringify({ 
+            type: "init", 
+            action: action, 
+            roomId: roomId,
+            username: username
+        }));
     } else {
         insertMsg("Cannot send — socket not open");
-        console.log("Failed to send initial action.");
+        console.log("Failed to send init message.");
     }
 }
 
@@ -78,7 +86,7 @@ function connect() {
     
     ws.addEventListener("open", () => {
         clearTimeout(connectTimeout);
-        sendAction(action);
+        sendInit();
         insertMsg("WebSocket connected");
     });
     

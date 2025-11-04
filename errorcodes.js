@@ -1,0 +1,8 @@
+export default {
+    CONNECTION_ERR: 0,
+    ROOMID_ALREADY_IN_USE: 1,
+    INVALID_USERNAME: 2,
+    INVALID_MSG_TYPE: 3,
+    NOT_IN_ROOM: 4,
+    INVALID_MSG: 5
+}
