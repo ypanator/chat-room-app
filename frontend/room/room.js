@@ -2,7 +2,7 @@ const msgBoxEl = document.getElementById("msgBox");
 const msgInputEl = document.getElementById("msgInput");
 const msgSendBtn = document.getElementById("msgSend");
 
-const SERVER_URL = "ws://backend:8081";
+const SERVER_URL = "ws://backend:8082";
 let ws;
 
 const roomId = sessionStorage.getItem("roomId");
@@ -43,7 +43,7 @@ function insertMsg(msg) {
 }
 
 //---------------------------------------------------------------------
-// ----------------- WebSocket connection and handlers ----------------
+// ----------------- WebSocket utility methods ------------------------
 //---------------------------------------------------------------------
 
 function sendMsg(msg) {
@@ -72,6 +72,10 @@ function sendInit() {
     }
 }
 
+//---------------------------------------------------------
+// ----------------- WebSocket connection  ----------------
+//---------------------------------------------------------
+
 function connect() {
     ws = new WebSocket(SERVER_URL);
     
@@ -92,6 +96,7 @@ function connect() {
     
     ws.addEventListener("message", (ev) => {
         const msg = JSON.parse(ev.data);
+
         if (msg.type === "msg") {
             insertMsg(msg.text);
             return;
@@ -100,15 +105,32 @@ function connect() {
             msg.text.forEach((m) => insertMsg(m));
             return;
         }
+        if (msg.type === "info") {
+            insertMsg(`RoomId: ${msg.roomId}`);
+            return;
+        }
+        if (msg.type === "error") {
+            alert(msg.error);
+            document.location.href = "../home/index.html";
+            return;
+        }
     });
     
     ws.addEventListener("error", (ev) => {
         insertMsg("WebSocket error (check server logs)");
     });
     
+    let retryCount = 0;
+    const MAX_RETRIES = 5;
+
     ws.addEventListener("close", (ev) => {
         insertMsg(`WebSocket closed (code=${ev.code}, reason=${ev.reason || "none"})`);
-        setTimeout(connect, 1000);
+        if (retryCount < MAX_RETRIES) {
+            retryCount++;
+            setTimeout(connect, 1000 * retryCount);
+        } else {
+            alert("Connection lost. Please refresh the page.");
+        }
     });
 }
 
