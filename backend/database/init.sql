@@ -1,0 +1,9 @@
+CREATE DATABASE IF NOT EXISTS messages;
+
+USE messages;
+
+CREATE TABLE IF NOT EXISTS messages (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    msg TEXT NOT NULL,
+    roomId TEXT NOT NULL
+);

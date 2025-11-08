@@ -1,6 +1,6 @@
-import { WebSocketServer } from 'ws';
+import { WebSocketServer, WebSocket } from 'ws';
 
-const wss = new WebSocketServer({ port: 8082 });
+const wss = new WebSocketServer({ port: 8081 });
 const rooms = new Map(); // roomId -> [sockets]
 
 const CONNECTION_ERR = "connection error"
@@ -12,8 +12,6 @@ const INVALID_INIT_STATE = "invalid init state; this should not happen"
 const ALREADY_INITIALIZED = "user already initialized"
 const NOT_INITIALIZED = "user not yet initialized"
 const INVALID_ROOMID = "invalid room id"
-
-let initalized = false;
 
 // -----------------------------------------------------------
 // -------------------- Message Templates --------------------
@@ -104,11 +102,12 @@ function handleInitMsg(msg, ws) {
 }
 
 wss.on('connection', function connection(ws) {
+    let initalized = false;
     let roomId = null;
     let username = null;
 
     ws.on('message', function message(data) {
-        msg = JSON.parse(data);
+        let msg = JSON.parse(data);
         
         if (msg.type === "init") {
             if (initalized) {

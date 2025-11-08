@@ -2,7 +2,7 @@ const msgBoxEl = document.getElementById("msgBox");
 const msgInputEl = document.getElementById("msgInput");
 const msgSendBtn = document.getElementById("msgSend");
 
-const SERVER_URL = "ws://backend:8082";
+const SERVER_URL = "ws://localhost:8082";
 let ws;
 
 const roomId = sessionStorage.getItem("roomId");
