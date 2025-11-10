@@ -42,6 +42,12 @@ function insertMsg(msg) {
     msgBoxEl.textContent += msg + "\n";
 }
 
+function insertHistory(history) {
+    let fullHistory = ""
+    history.forEach((m) => fullHistory += m + "\n");
+    msgBoxEl.textContent = fullHistory + msgBoxEl.textContent;
+}
+
 //---------------------------------------------------------------------
 // ----------------- WebSocket utility methods ------------------------
 //---------------------------------------------------------------------
@@ -102,7 +108,7 @@ function connect() {
             return;
         }
         if (msg.type === "history") {
-            msg.text.forEach((m) => insertMsg(m));
+            insertHistory(msg.history);
             return;
         }
         if (msg.type === "info") {
@@ -112,6 +118,10 @@ function connect() {
         if (msg.type === "error") {
             alert(msg.error);
             document.location.href = "../home/index.html";
+            return;
+        }
+        if (msg.type === "warning") {
+            alert(msg.warning);
             return;
         }
     });

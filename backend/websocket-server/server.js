@@ -1,26 +1,38 @@
 import { WebSocketServer, WebSocket } from 'ws';
+import dbwrap from './dbwrap.js';
+
+dbwrap.start();
 
 const wss = new WebSocketServer({ port: 8081 });
+// TODO: change to a Map of Sets
 const rooms = new Map(); // roomId -> [sockets]
 
-const CONNECTION_ERR = "connection error"
-const INVALID_USERNAME = "invalid username"
-const INVALID_MSG_TYPE = "invalid message type"
-const NOT_IN_ROOM = "not in room"
-const INVALID_MSG = "invalid message"
-const INVALID_INIT_STATE = "invalid init state; this should not happen"
-const ALREADY_INITIALIZED = "user already initialized"
-const NOT_INITIALIZED = "user not yet initialized"
-const INVALID_ROOMID = "invalid room id"
+const CONNECTION_ERR = "connection error";
+const INVALID_USERNAME = "invalid username";
+const INVALID_MSG_TYPE = "invalid message type";
+const NOT_IN_ROOM = "not in room";
+const INVALID_MSG = "invalid message";
+const INVALID_INIT_STATE = "invalid init state; this should not happen";
+const ALREADY_INITIALIZED = "user already initialized";
+const NOT_INITIALIZED = "user not yet initialized";
+const INVALID_ROOMID = "invalid room id";
+const HISTORY_FAILED = "fetching history failed";
 
 // -----------------------------------------------------------
 // -------------------- Message Templates --------------------
 // -----------------------------------------------------------
 
-// By default, error closes the connection
-function sendError(ws, error, close = true) {
+function sendHistory(ws, history) {
+    ws.send(JSON.stringify({ type: "history", history: history }));
+}
+
+function sendError(ws, error) {
     ws.send(JSON.stringify({ type: "error", error: error }));
-    if (close) { ws.close(); }
+    ws.close();
+}
+
+function sendWarning(ws, warning) {
+    ws.send(JSON.stringify({ type: "warning", warning: warning }));
 }
 
 function sendInfo(ws, roomId) {
@@ -50,6 +62,20 @@ function broadcast(sockets, text) {
     });
 }
 
+function broadcastAndSave(roomId, text) {
+    let sockets = rooms.get(roomId);
+    if (!sockets) {
+        console.warn('broadcastAndSave: unknown roomId', roomId);
+        return;
+    }
+
+    broadcast(sockets, text);
+    // fire-and-forget but catch errors so they don't become unhandled rejections
+    dbwrap.saveMsg(text, roomId).catch((err) => {
+        console.error('dbwrap.saveMsg failed', err);
+    });
+}
+
 const characterSet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
 function generateRoomId() {
     let result = ""
@@ -63,7 +89,7 @@ function generateRoomId() {
 // -------------------- WebSocket Server ---------------------
 // -----------------------------------------------------------
 
-function handleInitMsg(msg, ws) {
+async function handleInitMsg(msg, ws) {
     let action = null;
     let roomId = null;
     let username = null;
@@ -92,43 +118,55 @@ function handleInitMsg(msg, ws) {
         }
         rooms.get(roomId).push(ws);
 
+        // dbresponse: [rows, fields]
+        let dbresponse = null;
+        try {
+            dbresponse = await dbwrap.getHistory(roomId);
+        } catch (err) {
+            console.error('dbwrap.getHistory failed', err);
+            sendWarning(ws, HISTORY_FAILED);
+            return;
+        }
+        let history = dbresponse[0].map((row) => row.msg);
+        if (history.length >= 1) { sendHistory(ws, history); }
+
     } else {
         sendError(ws, INVALID_MSG);
         return;
     }
-    broadcast(rooms.get(roomId), joinMsg(username));
+    broadcastAndSave(roomId, joinMsg(username));
 
     return { roomId, username };
 }
 
 wss.on('connection', function connection(ws) {
-    let initalized = false;
+    let initialized = false;
     let roomId = null;
     let username = null;
 
-    ws.on('message', function message(data) {
+    ws.on('message', async function message(data) {
         let msg = JSON.parse(data);
         
         if (msg.type === "init") {
-            if (initalized) {
-                sendError(ws, ALREADY_INITIALIZED, false);
+            if (initialized) {
+                sendWarning(ws, ALREADY_INITIALIZED);
                 return;
             }
 
-            let data = handleInitMsg(msg, ws);
+            let data = await handleInitMsg(msg, ws);
             
             if (data) {
                 roomId = data.roomId;
                 username = data.username;
-                initalized = true;
+                initialized = true;
             } else {
                 sendError(ws, INVALID_INIT_STATE);
                 return;
             }      
 
         } else if (msg.type === "msg") {
-            if (!initalized) {
-                sendError(ws, NOT_INITIALIZED, false);
+            if (!initialized) {
+                sendWarning(ws, NOT_INITIALIZED);
                 return;
             }
             if (roomId === null) {
@@ -139,7 +177,7 @@ wss.on('connection', function connection(ws) {
                 sendError(ws, INVALID_USERNAME);
                 return;
             }
-            broadcast(rooms.get(roomId), chatMsg(username, msg.text));
+            broadcastAndSave(roomId, chatMsg(username, msg.text));
 
         } else {
             sendError(ws, INVALID_MSG_TYPE);
