@@ -1,6 +1,7 @@
 const msgBoxEl = document.getElementById("msgBox");
 const msgInputEl = document.getElementById("msgInput");
 const msgSendBtn = document.getElementById("msgSend");
+const roomIdValueEl = document.getElementById("roomIdValue");
 
 const SERVER_URL = "ws://localhost:8082";
 let ws;
@@ -97,7 +98,6 @@ function connect() {
     ws.addEventListener("open", () => {
         clearTimeout(connectTimeout);
         sendInit();
-        insertMsg("WebSocket connected");
     });
     
     ws.addEventListener("message", (ev) => {
@@ -112,7 +112,7 @@ function connect() {
             return;
         }
         if (msg.type === "info") {
-            insertMsg(`RoomId: ${msg.roomId}`);
+            roomIdValueEl.textContent = msg.roomId;
             return;
         }
         if (msg.type === "error") {

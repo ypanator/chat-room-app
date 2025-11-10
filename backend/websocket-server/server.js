@@ -117,6 +117,7 @@ async function handleInitMsg(msg, ws) {
             return;
         }
         rooms.get(roomId).add(ws);
+        sendInfo(ws, roomId);
 
         // dbresponse: [rows, fields]
         let dbresponse = null;
@@ -127,7 +128,7 @@ async function handleInitMsg(msg, ws) {
             sendWarning(ws, HISTORY_FAILED);
             return;
         }
-        let history = dbresponse[0].map((row) => row.msg);
+        let history = dbresponse.map((row) => row.msg);
         if (history.length >= 1) { sendHistory(ws, history); }
 
     } else {

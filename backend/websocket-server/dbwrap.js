@@ -25,7 +25,7 @@ const dbwrap = {
 
     saveMsg: (msg, roomId) => {
         if (dbwrap.pool === null) return Promise.reject(new Error("Database connection not started"));
-        const query = "INSERT INTO messages (roomId, message) VALUES (?, ?)";
+        const query = "INSERT INTO messages (roomId, msg) VALUES (?, ?)";
         return dbwrap.pool.execute(query, [roomId, msg]).then(([result]) => result);
     },
 
