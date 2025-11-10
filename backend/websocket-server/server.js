@@ -4,8 +4,8 @@ import dbwrap from './dbwrap.js';
 dbwrap.start();
 
 const wss = new WebSocketServer({ port: 8081 });
-// TODO: change to a Map of Sets
-const rooms = new Map(); // roomId -> [sockets]
+// rooms: roomId -> Set<ws>
+const rooms = new Map();
 
 const CONNECTION_ERR = "connection error";
 const INVALID_USERNAME = "invalid username";
@@ -108,7 +108,7 @@ async function handleInitMsg(msg, ws) {
 
     if (action === "create") {
         roomId = generateRoomId();
-        rooms.set(roomId, [ws]);
+        rooms.set(roomId, new Set([ws]));
         sendInfo(ws, roomId);
 
     } else if (action === "join") {
@@ -116,7 +116,7 @@ async function handleInitMsg(msg, ws) {
             sendError(ws, INVALID_ROOMID);
             return;
         }
-        rooms.get(roomId).push(ws);
+        rooms.get(roomId).add(ws);
 
         // dbresponse: [rows, fields]
         let dbresponse = null;
@@ -187,11 +187,8 @@ wss.on('connection', function connection(ws) {
     ws.on('close', function() {
         if (roomId && rooms.has(roomId)) {
             const room = rooms.get(roomId);
-            const index = room.indexOf(ws);
-            if (index > -1) {
-                room.splice(index, 1);
-            }
-            if (room.length === 0) {
+            room.delete(ws);
+            if (room.size === 0) {
                 rooms.delete(roomId);
             }
         }
