@@ -1,0 +1,12 @@
+form {
+  width: 320px;
+}
+
+button {
+  margin-top: 6px;
+}
+
+/* Keep create/join buttons side-by-side if you want */
+#create, #join {
+  width: 100%;
+}

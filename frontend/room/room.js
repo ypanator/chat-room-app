@@ -44,7 +44,7 @@ function insertMsg(msg) {
 }
 
 function insertHistory(history) {
-    let fullHistory = ""
+    let fullHistory = "";
     history.forEach((m) => fullHistory += m + "\n");
     msgBoxEl.textContent = fullHistory + msgBoxEl.textContent;
 }

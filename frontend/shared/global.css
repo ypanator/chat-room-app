@@ -1,3 +1,4 @@
+/* RESET + BASE STYLE */
 * {
   margin: 0;
   padding: 0;
@@ -7,6 +8,87 @@
 html, body {
   height: 100%;
   background-color: #1e2a38;
-  color: white;
-  font-family: sans-serif;
+  color: #f3f6fa;
+  font-family: "Inter", sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* VARIABLES (modify these and the whole vibe changes) */
+:root {
+  --bg: #1e2a38;
+  --bg-light: #263446;
+  --bg-dark: #161f29;
+  --text: #f3f6fa;
+
+  --accent: #4ec9b0;        /* minty fresh */
+  --accent-hover: #3da995;
+  --danger: #ef6464;
+  --radius: 8px;
+  --pad: 12px;
+  --gap: 14px;
+  --shadow: 0 4px 12px rgba(0,0,0,0.25);
+}
+
+/* GLOBAL FORM STYLING */
+form, .form-box {
+  background: var(--bg-light);
+  padding: 30px;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap);
+  min-width: 300px;
+}
+
+/* LABELS */
+label {
+  font-size: 0.9rem;
+  opacity: 0.8;
+}
+
+/* INPUTS */
+input {
+  padding: var(--pad);
+  border-radius: var(--radius);
+  border: 1px solid #2f4157;
+  background: var(--bg-dark);
+  color: var(--text);
+  transition: border 0.2s, background 0.2s;
+}
+
+input:focus {
+  outline: none;
+  border-color: var(--accent);
+  background: #1c2734;
+}
+
+/* BUTTONS */
+button {
+  padding: var(--pad);
+  border-radius: var(--radius);
+  border: none;
+  background: var(--accent);
+  cursor: pointer;
+  font-weight: bold;
+  transition: background 0.2s, transform 0.1s;
+}
+
+button:hover {
+  background: var(--accent-hover);
+  transform: translateY(-2px);
+}
+
+button:active {
+  transform: translateY(0px);
+}
+
+/* REUSABLE BOX */
+.box {
+  background: var(--bg-light);
+  padding: 20px;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
 }
